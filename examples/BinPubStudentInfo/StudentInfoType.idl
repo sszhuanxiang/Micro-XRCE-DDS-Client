@@ -1,0 +1,5 @@
+struct StudentInfoType{
+    string          name;
+    long            id;
+    string          date;
+};
