@@ -12,7 +12,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#include "StudentInfoType.h"
+#include "student.h"
 
 #include <uxr/client/client.h>
 #include <ucdr/microcdr.h>
@@ -117,7 +117,6 @@ int main(
     }
 
     // Write topics
-    bool connected = true;
     //uint32_t count = 0;
     // while (connected && count < max_topics)
     // {
@@ -133,20 +132,26 @@ int main(
     //     printf("Send topic: %s, id: %i\n", topic.message, topic.index);
     //     connected = uxr_run_session_time(&session, 1000);
     // }
-    StudentInfoType topic= {
-        "sunshuai",2021210863,"2003.12.05"
-    };
+    bool connected = true;
+    while (connect) {
+        long number = rand() % 100000;
+        //cin >> data;
+        student topic ={
+            "student",number,1,{"Reading","Music","Sports"}
+        };
+        ucdrBuffer ub;
+        uint32_t topic_size = student_size_of_topic(&topic, 0);
+        uxr_prepare_output_stream(&session, reliable_out, datawriter_id, &ub, topic_size);
+        student_serialize_topic(&ub, &topic);
 
-    ucdrBuffer ub;
-    uint32_t topic_size = StudentInfoType_size_of_topic(&topic, 0);
-    uxr_prepare_output_stream(&session, reliable_out, datawriter_id, &ub, topic_size);
-    StudentInfoType_serialize_topic(&ub, &topic);
+        printf("name: %s, number: %ld, grade: %ld hobby: %s %s %s"
+        ,topic.name, topic.number, topic.grade
+        ,topic.hobby[1],topic.hobby[1],topic.hobby[2]);
 
-    printf("Student info---> name: %s, id: %ld, date: %s\n",topic.name, topic.id, topic.date);
+        connected = uxr_run_session_time(&session, 100);
 
-    connected = uxr_run_session_time(&session, 1000);
+    }
 
-    // Delete resources
     uxr_delete_session(&session);
     uxr_close_udp_transport(&transport);
 
